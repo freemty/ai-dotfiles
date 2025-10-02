@@ -1,0 +1,15 @@
+[user]
+	name = freemty
+	email = yangyuanbo04@gamil.com
+[url "ssh://git@github.com/"]
+        insteadOf = https://github.com/
+[http "https://github.com"]
+	proxy = socks5://127.0.0.1:7890
+[https "https://github.com"]
+	proxy = socks5://127.0.0.1:1086
+[http]
+	proxy = socks5://127.0.0.1:7890
+[https]
+	proxy = socks5://127.0.0.1:7890
+[credential]
+	helper = store

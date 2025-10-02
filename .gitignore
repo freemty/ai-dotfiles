@@ -1,0 +1,69 @@
+# 备份文件
+backups/
+*.backup
+*.bak
+
+# 敏感信息
+secrets/
+*.key
+*.pem
+*.p12
+.env
+api_keys.json
+
+# 系统文件
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# 日志文件
+*.log
+logs/
+
+# 临时文件
+tmp/
+temp/
+*.tmp
+
+# IDE 文件
+.vscode/
+.idea/
+*.sublime-*
+
+# 缓存文件
+cache/
+.cache/
+
+# Clash 缓存
+configs/clash/cache.db
+configs/clash/Clash_*.yaml
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# 编译文件
+*.o
+*.so
+*.dylib
+*.dll
+*.exe
+
+# Git 子模块（保留 .gitmodules）
+# .gitmodules 应该被提交
