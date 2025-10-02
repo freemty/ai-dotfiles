@@ -1,0 +1,15 @@
+# SSH 配置模板
+# 将此内容添加到 ~/.ssh/config 文件中
+
+Host server1
+    HostName 10.13.74.23
+    Port 66
+    User ybyang
+    # 可选：指定私钥文件
+    # IdentityFile ~/.ssh/id_rsa
+
+Host server2
+    HostName another-server.com
+    Port 22
+    User username
+    # 其他配置...

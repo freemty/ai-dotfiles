@@ -186,3 +186,5 @@ function cycle-color() {
   # 提示已切换主题
   echo "已切换到 $theme_name 主题。"
 }
+export FZF_BASE=$(brew --prefix fzf)
+[ -f /opt/homebrew/etc/profile.d/autojump.sh ] && . /opt/homebrew/etc/profile.d/autojump.sh

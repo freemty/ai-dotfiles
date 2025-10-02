@@ -19,7 +19,7 @@ show_help() {
     echo ""
     echo "选项:"
     echo "  --backup-only     仅备份现有配置"
-    echo "  --sync-only       仅同步配置到仓库"
+    echo "  --sync-only  --sync-only       仅同步配置到仓库"
     echo "  --install         完整安装（默认）"
     echo "  --help, -h        显示此帮助信息"
     echo ""
@@ -220,6 +220,9 @@ install_zsh_and_themes() {
     # 修复 Homebrew 补全问题
     fix_homebrew_completion
     
+    # 检查并修复 zsh 配置问题
+    fix_zsh_config_issues
+    
     echo -e "${GREEN}✅ ZSH 和主题安装完成${NC}"
 }
 
@@ -300,6 +303,41 @@ install_autojump() {
     esac
     
     echo -e "${GREEN}✅ autojump 安装完成${NC}"
+}
+
+# 检查并修复 zsh 配置问题
+fix_zsh_config_issues() {
+    echo -e "${YELLOW}🔧 检查并修复 zsh 配置问题...${NC}"
+    
+    # 检查 fzf 安装
+    if ! command -v fzf &> /dev/null; then
+        echo -e "${YELLOW}⚠️ fzf 未安装，跳过 fzf 插件${NC}"
+    else
+        echo -e "${GREEN}✅ fzf 已安装${NC}"
+    fi
+    
+    # 检查 autojump 安装
+    if ! command -v autojump &> /dev/null; then
+        echo -e "${YELLOW}⚠️ autojump 未安装，跳过 autojump 插件${NC}"
+    else
+        echo -e "${GREEN}✅ autojump 已安装${NC}"
+    fi
+    
+    # 检查 zsh-syntax-highlighting 插件
+    if [[ ! -d "$HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting" ]]; then
+        echo -e "${YELLOW}⚠️ zsh-syntax-highlighting 插件未安装${NC}"
+    else
+        echo -e "${GREEN}✅ zsh-syntax-highlighting 插件已安装${NC}"
+    fi
+    
+    # 检查 zsh-autosuggestions 插件
+    if [[ ! -d "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions" ]]; then
+        echo -e "${YELLOW}⚠️ zsh-autosuggestions 插件未安装${NC}"
+    else
+        echo -e "${GREEN}✅ zsh-autosuggestions 插件已安装${NC}"
+    fi
+    
+    echo -e "${GREEN}✅ zsh 配置检查完成${NC}"
 }
 
 # 安装 copyzshell

@@ -17,7 +17,7 @@ YYb的 Powerlevel10k + Clash + copyzshel 的配置管理工具，让你可以轻
 ## 📦 包含的配置
 
 - **Shell 配置** - ZSH + Oh My Zsh + Powerlevel10k
-- **ZSH 插件** - zsh-syntax-highlighting, zsh-autosuggestions, fzf, autojump
+<!-- - **ZSH 插件** - zsh-syntax-highlighting, zsh-autosuggestions, fzf, autojump -->
 - **Git 配置** - 包含代理设置的 Git 配置
 - **Clash 配置** - 代理工具配置
 - **Tmux 配置** - 终端复用器配置（可选）
@@ -62,18 +62,6 @@ copyzshell user@new-device-ip
 ### 同步配置到仓库
 ```bash
 ./install.sh --sync-only
-```
-
-### 管理子模块
-```bash
-# 初始化子模块
-./scripts/manage_submodules.sh init
-
-# 更新子模块
-./scripts/manage_submodules.sh update
-
-# 查看子模块状态
-./scripts/manage_submodules.sh status
 ```
 
 
