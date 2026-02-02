@@ -340,36 +340,6 @@ fix_zsh_config_issues() {
     echo -e "${GREEN}✅ zsh 配置检查完成${NC}"
 }
 
-# 安装 copyzshell
-install_copyzshell() {
-    echo -e "${YELLOW}📋 安装 copyzshell 插件...${NC}"
-    
-    local copyzshell_dir="$HOME/.oh-my-zsh/custom/plugins/copyzshell"
-    
-    # 确保子模块已初始化
-    if [ -d "third_party/copyzshell" ]; then
-        echo "使用项目中的 copyzshell 子模块..."
-        git submodule update --init --recursive third_party/copyzshell
-        
-        # 复制到 oh-my-zsh 插件目录
-        if [ ! -d "$copyzshell_dir" ]; then
-            mkdir -p "$copyzshell_dir"
-        fi
-        cp -r third_party/copyzshell/* "$copyzshell_dir/"
-        echo "✅ copyzshell 插件已从子模块安装"
-    else
-        # 回退到直接克隆
-        if [ ! -d "$copyzshell_dir" ]; then
-            echo "克隆 copyzshell 插件..."
-            git clone https://github.com/rutchkiwi/copyzshell.git "$copyzshell_dir"
-        else
-            echo "copyzshell 插件已存在，更新中..."
-            cd "$copyzshell_dir"
-            git pull
-        fi
-    fi
-}
-
 # 安装 Clash
 install_clash() {
     echo -e "${YELLOW}🌐 安装 Clash...${NC}"
@@ -426,28 +396,17 @@ install_clash() {
 # 同步配置到仓库
 sync_configs_to_repo() {
     echo -e "${YELLOW}🔄 同步配置到仓库...${NC}"
-    
-    # 复制当前配置到仓库
-    if [ -f "$HOME/.zshrc" ]; then
-        cp "$HOME/.zshrc" "configs/shell/.zshrc"
-        echo "✅ 已同步 .zshrc"
+
+    local script_dir
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+    if [ -x "$script_dir/scripts/sync.sh" ]; then
+        "$script_dir/scripts/sync.sh"
+    else
+        echo -e "${RED}未找到 scripts/sync.sh，请检查仓库完整性${NC}"
+        exit 1
     fi
-    
-    if [ -f "$HOME/.gitconfig" ]; then
-        cp "$HOME/.gitconfig" "configs/git/.gitconfig"
-        echo "✅ 已同步 .gitconfig"
-    fi
-    
-    if [ -d "$HOME/.config/clash" ]; then
-        cp -r "$HOME/.config/clash" "configs/"
-        echo "✅ 已同步 Clash 配置"
-    fi
-    
-    if [ -f "$HOME/.tmux.conf" ]; then
-        cp "$HOME/.tmux.conf" "configs/tmux/.tmux.conf"
-        echo "✅ 已同步 .tmux.conf"
-    fi
-    
+
     echo -e "${GREEN}✅ 配置同步完成${NC}"
 }
 

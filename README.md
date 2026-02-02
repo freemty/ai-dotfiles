@@ -37,13 +37,18 @@ git submodule update --init --recursive
 
 **注意**: 由于使用了 Git 子模块，克隆后必须初始化子模块才能正常使用 copyzshell 功能。
 
-### 2. 安装配置
+### 2. 一键同步本机配置到仓库
+```bash
+./scripts/sync.sh
+```
+
+### 3. 安装配置
 ```bash
 chmod +x install.sh
 ./install.sh
 ```
 
-### 3. 部署到新设备
+### 4. 部署到新设备
 ```bash
 # 使用 copyzshell 部署
 copyzshell user@new-device-ip
@@ -61,7 +66,7 @@ copyzshell user@new-device-ip
 
 ### 同步配置到仓库
 ```bash
-./install.sh --sync-only
+./scripts/sync.sh
 ```
 
 
@@ -72,12 +77,17 @@ ybcfg/
 ├── README.md                 # 项目说明
 ├── install.sh               # 一键安装脚本
 ├── configs/                 # 配置文件目录
+│   ├── claude/              # Claude Code 配置
+│   ├── codex/               # Codex CLI 配置
+│   ├── gemini/              # Gemini CLI 配置
 │   ├── shell/               # Shell 配置
 │   ├── git/                 # Git 配置
 │   ├── clash/               # Clash 配置
 │   ├── tmux/                # Tmux 配置
 │   └── tools/               # 工具配置
 ├── scripts/                 # 管理脚本
+│   ├── sync.sh              # 一键同步本机配置到仓库
+│   ├── apply.sh             # 一键将仓库配置应用到本机
 │   ├── deploy.sh            # 部署脚本
 │   ├── manage_submodules.sh # 子模块管理脚本
 │   └── clash/               # Clash 管理脚本
@@ -126,11 +136,17 @@ cd ybcfg
 
 ### 同步本地配置到仓库
 ```bash
-./install.sh --sync-only
+./scripts/sync.sh
 git add .
 git commit -m "Update configs $(date)"
 git push
 ```@    
+
+### 迁移到新设备（从仓库恢复）
+```bash
+./scripts/apply.sh
+```
+> 注意：`secrets/` 不会进 Git，迁移时需要单独拷贝到新机器。
 
 
 
@@ -139,6 +155,7 @@ git push
 - 敏感配置（如 API 密钥）存储在 `secrets/` 目录
 - 使用 `.gitignore` 避免提交敏感信息
 - 配置文件备份在 `backups/` 目录
+- Claude/Codex/Gemini 的认证文件会被同步到 `secrets/`（不会进入 Git）
 
 
 ## 🙏 致谢

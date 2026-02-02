@@ -1,0 +1,10 @@
+{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "<redacted>",
+    "ANTHROPIC_BASE_URL": "https://www.right.codes/claude-aws"
+  },
+  "language": "\u4e2d\u6587",
+  "enabledPlugins": {
+    "everything-claude-code@everything-claude-code": true
+  }
+}

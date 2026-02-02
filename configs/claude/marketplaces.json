@@ -1,0 +1,16 @@
+{
+  "marketplaces": [
+    {
+      "name": "claude-plugins-official",
+      "source": "github",
+      "repo": "anthropics/claude-plugins-official",
+      "source_arg": "anthropics/claude-plugins-official"
+    },
+    {
+      "name": "everything-claude-code",
+      "source": "github",
+      "repo": "affaan-m/everything-claude-code",
+      "source_arg": "affaan-m/everything-claude-code"
+    }
+  ]
+}
