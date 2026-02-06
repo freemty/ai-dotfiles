@@ -27,9 +27,6 @@ copy_file "$HOME/.gitconfig" "$ROOT_DIR/configs/git/.gitconfig"
 # Tmux
 copy_file "$HOME/.tmux.conf" "$ROOT_DIR/configs/tmux/.tmux.conf"
 
-# Clash
-mirror_dir "$HOME/.config/clash" "$ROOT_DIR/configs/clash"
-
 # Claude
 if [ -d "$HOME/.claude" ]; then
   if [ -f "$HOME/.claude/mcp.json" ]; then
@@ -200,7 +197,46 @@ fi
 
 # Codex
 if [ -d "$HOME/.codex" ]; then
-  copy_file "$HOME/.codex/config.toml" "$ROOT_DIR/configs/codex/config.toml"
+  if [ -f "$HOME/.codex/config.toml" ]; then
+    ensure_dir "$ROOT_DIR/secrets/codex"
+    ensure_dir "$ROOT_DIR/configs/codex"
+
+    if [ -n "$PYTHON_BIN" ]; then
+      CODEX_CONFIG_SRC="$HOME/.codex/config.toml" \
+      CODEX_CONFIG_SECRET="$ROOT_DIR/secrets/codex/config.toml" \
+      CODEX_CONFIG_REDACTED="$ROOT_DIR/configs/codex/config.toml" \
+      "$PYTHON_BIN" - << 'PY'
+import os
+import re
+from pathlib import Path
+
+src = Path(os.environ["CODEX_CONFIG_SRC"])
+secret = Path(os.environ["CODEX_CONFIG_SECRET"])
+redacted = Path(os.environ["CODEX_CONFIG_REDACTED"])
+
+text = src.read_text()
+secret.write_text(text)
+
+def redact_line(line: str) -> str:
+    m = re.match(r'^(\\s*[^#\\s=]+)\\s*=\\s*\"(.*)\"\\s*$', line)
+    if not m:
+        return line
+    key, value = m.group(1), m.group(2)
+    key_upper = key.upper()
+    if any(x in key_upper for x in ("TOKEN", "KEY", "SECRET", "PASSWORD")):
+        return f'{key} = \"<redacted>\"'
+    return line
+
+redacted_text = "\\n".join(redact_line(line) for line in text.splitlines()) + "\\n"
+redacted.write_text(redacted_text)
+PY
+      log "codex config: secret + redacted"
+    else
+      copy_file "$HOME/.codex/config.toml" "$ROOT_DIR/secrets/codex/config.toml"
+      warn "python not found; skipped redacted codex config"
+    fi
+  fi
+
   mirror_dir "$HOME/.codex/skills" "$ROOT_DIR/configs/codex/skills"
   copy_file "$HOME/.codex/auth.json" "$ROOT_DIR/secrets/codex/auth.json"
 else

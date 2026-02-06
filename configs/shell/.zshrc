@@ -188,3 +188,28 @@ function cycle-color() {
 }
 export FZF_BASE=$(brew --prefix fzf)
 [ -f /opt/homebrew/etc/profile.d/autojump.sh ] && . /opt/homebrew/etc/profile.d/autojump.sh
+export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
+
+# Blender PATH
+export PATH="/Applications/Blender.app/Contents/MacOS:$PATH"
+
+# Added by Windsurf
+export PATH="/Users/sum_young/.codeium/windsurf/bin:$PATH"
+
+
+
+alias cc="claude"
+alias cx="codex"
+alias gm="gemini"
+
+
+alias sc="source"
+alias proxy="export https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 all_proxy=socks5://127.0.0.1:7890"
+alias unproxy="unset https_proxy http_proxy all_proxy"
+# CC
+# Load local secret environment variables
+if [ -f "$HOME/.config/secret-env" ]; then
+  set -a
+  source "$HOME/.config/secret-env"
+  set +a
+fi

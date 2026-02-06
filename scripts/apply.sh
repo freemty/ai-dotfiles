@@ -18,6 +18,43 @@ ensure_dir "$BACKUP_DIR"
 
 log "apply start"
 
+SECRET_ENV_FILE="$HOME/.config/secret-env"
+
+load_secret_env() {
+  if [ -f "$SECRET_ENV_FILE" ]; then
+    set -a
+    # shellcheck disable=SC1090
+    source "$SECRET_ENV_FILE"
+    set +a
+  fi
+}
+
+ensure_secret_env_key() {
+  local key="$1"
+  ensure_dir "$(dirname "$SECRET_ENV_FILE")"
+  touch "$SECRET_ENV_FILE"
+  chmod 600 "$SECRET_ENV_FILE" || true
+
+  if ! grep -q "^${key}=" "$SECRET_ENV_FILE" 2>/dev/null; then
+    read -r -s -p "Enter ${key}: " value
+    printf "\n"
+    printf "%s=%s\n" "$key" "$value" >> "$SECRET_ENV_FILE"
+  fi
+}
+
+needs_notion_key=0
+if [ -f "$ROOT_DIR/configs/claude/mcp.json" ] && grep -q "NOTION_API_KEY" "$ROOT_DIR/configs/claude/mcp.json"; then
+  needs_notion_key=1
+fi
+if [ -f "$ROOT_DIR/configs/codex/config.toml" ] && grep -q "NOTION_API_KEY" "$ROOT_DIR/configs/codex/config.toml"; then
+  needs_notion_key=1
+fi
+
+if [ "$needs_notion_key" -eq 1 ]; then
+  ensure_secret_env_key "NOTION_API_KEY"
+fi
+load_secret_env
+
 apply_file() {
   local src="$1"
   local dest="$2"
@@ -60,10 +97,6 @@ apply_file "$ROOT_DIR/configs/git/.gitconfig" "$HOME/.gitconfig"
 # Tmux
 apply_file "$ROOT_DIR/configs/tmux/.tmux.conf" "$HOME/.tmux.conf"
 
-# Clash
-ensure_dir "$HOME/.config"
-apply_dir "$ROOT_DIR/configs/clash" "$HOME/.config/clash"
-
 # Claude
 if [ -d "$ROOT_DIR/configs/claude" ]; then
   ensure_dir "$HOME/.claude"
@@ -72,6 +105,34 @@ if [ -d "$ROOT_DIR/configs/claude" ]; then
     chmod 600 "$HOME/.claude/mcp.json" || true
   else
     apply_file "$ROOT_DIR/configs/claude/mcp.json" "$HOME/.claude/mcp.json"
+  fi
+  if [ -f "$HOME/.claude/mcp.json" ] && [ -n "$PYTHON_BIN" ]; then
+    "$PYTHON_BIN" - "$HOME/.claude/mcp.json" << 'PY'
+import json
+import os
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+data = json.loads(path.read_text())
+
+changed = False
+mcp_servers = data.get("mcpServers")
+if isinstance(mcp_servers, dict):
+    for server in mcp_servers.values():
+        if not isinstance(server, dict):
+            continue
+        env = server.get("env")
+        if not isinstance(env, dict):
+            continue
+        for key, value in list(env.items()):
+            if value == "<redacted>" and os.environ.get(key):
+                env[key] = os.environ[key]
+                changed = True
+
+if changed:
+    path.write_text(json.dumps(data, indent=2) + "\n")
+PY
   fi
   apply_dir "$ROOT_DIR/configs/claude/rules" "$HOME/.claude/rules"
 
@@ -120,7 +181,38 @@ fi
 # Codex
 if [ -d "$ROOT_DIR/configs/codex" ]; then
   ensure_dir "$HOME/.codex"
-  apply_file "$ROOT_DIR/configs/codex/config.toml" "$HOME/.codex/config.toml"
+  if [ -f "$ROOT_DIR/secrets/codex/config.toml" ]; then
+    apply_file "$ROOT_DIR/secrets/codex/config.toml" "$HOME/.codex/config.toml"
+    chmod 600 "$HOME/.codex/config.toml" || true
+  else
+    apply_file "$ROOT_DIR/configs/codex/config.toml" "$HOME/.codex/config.toml"
+  fi
+  if [ -f "$HOME/.codex/config.toml" ] && [ -n "$PYTHON_BIN" ]; then
+    "$PYTHON_BIN" - "$HOME/.codex/config.toml" << 'PY'
+import os
+import re
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+text = path.read_text()
+
+def replace_redacted(line: str) -> str:
+    m = re.match(r'^(\\s*[^#\\s=]+)\\s*=\\s*\"(.*)\"\\s*$', line)
+    if not m:
+        return line
+    key, value = m.group(1), m.group(2)
+    if value != "<redacted>":
+        return line
+    env_val = os.environ.get(key)
+    if env_val:
+        return f'{key} = \"{env_val}\"'
+    return line
+
+new_text = "\\n".join(replace_redacted(line) for line in text.splitlines()) + "\\n"
+path.write_text(new_text)
+PY
+  fi
   apply_dir "$ROOT_DIR/configs/codex/skills" "$HOME/.codex/skills"
   if [ -f "$ROOT_DIR/secrets/codex/auth.json" ]; then
     apply_file "$ROOT_DIR/secrets/codex/auth.json" "$HOME/.codex/auth.json"

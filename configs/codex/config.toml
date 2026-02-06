@@ -17,3 +17,10 @@ trust_level = "trusted"
 
 # Common Codex config
 # Add your common TOML configuration here
+
+[mcp_servers.notion]
+command = "npx"
+args = ["-y", "@notionhq/notion-mcp-server"]
+
+[mcp_servers.notion.env]
+NOTION_API_KEY = "<redacted>"

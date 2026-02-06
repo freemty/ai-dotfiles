@@ -4,11 +4,11 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 log() {
-  printf "[ybcfg] %s\n" "$*"
+  printf "[ai-dotfiles] %s\n" "$*"
 }
 
 warn() {
-  printf "[ybcfg][warn] %s\n" "$*" >&2
+  printf "[ai-dotfiles][warn] %s\n" "$*" >&2
 }
 
 ensure_dir() {
@@ -76,4 +76,51 @@ backup_path() {
     fi
     log "backup: $target -> $dest"
   fi
+}
+
+ssh_exec() {
+  local ssh_target="$1"
+  shift
+  local ssh_opts=("${SSH_OPTS[@]}")
+  ssh "${ssh_opts[@]}" "$ssh_target" "$@"
+}
+
+ssh_test() {
+  local ssh_target="$1"
+  local ssh_opts=("${SSH_OPTS[@]}")
+  ssh -o ConnectTimeout=5 -o BatchMode=yes "${ssh_opts[@]}" "$ssh_target" "echo ok" >/dev/null 2>&1
+}
+
+detect_remote_os() {
+  local ssh_target="$1"
+  local os_id
+  os_id=$(ssh_exec "$ssh_target" "cat /etc/os-release 2>/dev/null | grep '^ID=' | cut -d= -f2 | tr -d '\"'" || echo "unknown")
+  echo "$os_id"
+}
+
+detect_pkg_mgr() {
+  local ssh_target="$1"
+  local os_id="$2"
+
+  case "$os_id" in
+    ubuntu|debian)
+      echo "apt"
+      ;;
+    centos|rhel|rocky|almalinux)
+      if ssh_exec "$ssh_target" "command -v dnf >/dev/null 2>&1"; then
+        echo "dnf"
+      else
+        echo "yum"
+      fi
+      ;;
+    arch|manjaro)
+      echo "pacman"
+      ;;
+    alpine)
+      echo "apk"
+      ;;
+    *)
+      echo "unknown"
+      ;;
+  esac
 }
