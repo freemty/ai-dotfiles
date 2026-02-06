@@ -16,6 +16,39 @@ fi
 BACKUP_DIR="$ROOT_DIR/backups/$(date +%Y%m%d_%H%M%S)"
 ensure_dir "$BACKUP_DIR"
 
+# Parse command line arguments
+MODULES=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --modules=*)
+      MODULES="${1#*=}"
+      shift
+      ;;
+    --modules)
+      MODULES="$2"
+      shift 2
+      ;;
+    *)
+      warn "unknown option: $1"
+      shift
+      ;;
+  esac
+done
+
+# Function to check if a module should be applied
+should_apply_module() {
+  local module="$1"
+  # If no modules specified, apply all
+  if [ -z "$MODULES" ]; then
+    return 0
+  fi
+  # Check if module is in the comma-separated list
+  if [[ ",$MODULES," == *",$module,"* ]]; then
+    return 0
+  fi
+  return 1
+}
+
 log "apply start"
 
 SECRET_ENV_FILE="$HOME/.config/secret-env"
@@ -86,19 +119,25 @@ apply_dir() {
 }
 
 # Shell
-apply_file "$ROOT_DIR/configs/shell/.zshrc" "$HOME/.zshrc"
-apply_file "$ROOT_DIR/configs/shell/.p10k.zsh" "$HOME/.p10k.zsh"
-apply_file "$ROOT_DIR/configs/shell/.zprofile" "$HOME/.zprofile"
-apply_file "$ROOT_DIR/configs/shell/.zsh_profile" "$HOME/.zsh_profile"
+if should_apply_module "shell"; then
+  apply_file "$ROOT_DIR/configs/shell/.zshrc" "$HOME/.zshrc"
+  apply_file "$ROOT_DIR/configs/shell/.p10k.zsh" "$HOME/.p10k.zsh"
+  apply_file "$ROOT_DIR/configs/shell/.zprofile" "$HOME/.zprofile"
+  apply_file "$ROOT_DIR/configs/shell/.zsh_profile" "$HOME/.zsh_profile"
+fi
 
 # Git
-apply_file "$ROOT_DIR/configs/git/.gitconfig" "$HOME/.gitconfig"
+if should_apply_module "git"; then
+  apply_file "$ROOT_DIR/configs/git/.gitconfig" "$HOME/.gitconfig"
+fi
 
 # Tmux
-apply_file "$ROOT_DIR/configs/tmux/.tmux.conf" "$HOME/.tmux.conf"
+if should_apply_module "tmux"; then
+  apply_file "$ROOT_DIR/configs/tmux/.tmux.conf" "$HOME/.tmux.conf"
+fi
 
 # Claude
-if [ -d "$ROOT_DIR/configs/claude" ]; then
+if should_apply_module "claude" && [ -d "$ROOT_DIR/configs/claude" ]; then
   ensure_dir "$HOME/.claude"
   if [ -f "$ROOT_DIR/secrets/claude/mcp.json" ]; then
     apply_file "$ROOT_DIR/secrets/claude/mcp.json" "$HOME/.claude/mcp.json"
@@ -179,7 +218,7 @@ PY
 fi
 
 # Codex
-if [ -d "$ROOT_DIR/configs/codex" ]; then
+if should_apply_module "codex" && [ -d "$ROOT_DIR/configs/codex" ]; then
   ensure_dir "$HOME/.codex"
   if [ -f "$ROOT_DIR/secrets/codex/config.toml" ]; then
     apply_file "$ROOT_DIR/secrets/codex/config.toml" "$HOME/.codex/config.toml"
@@ -221,7 +260,7 @@ PY
 fi
 
 # Gemini
-if [ -d "$ROOT_DIR/configs/gemini" ]; then
+if should_apply_module "gemini" && [ -d "$ROOT_DIR/configs/gemini" ]; then
   ensure_dir "$HOME/.gemini"
   apply_file "$ROOT_DIR/configs/gemini/settings.json" "$HOME/.gemini/settings.json"
   apply_file "$ROOT_DIR/configs/gemini/state.json" "$HOME/.gemini/state.json"

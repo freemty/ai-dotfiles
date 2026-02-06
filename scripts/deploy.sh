@@ -369,14 +369,20 @@ collect_and_transfer_interactive_secrets() {
 run_remote_apply() {
   log "executing apply.sh on remote server..."
 
+  # Build apply.sh command with modules parameter
+  local apply_cmd="cd ~/$REMOTE_DEPLOY_DIR && chmod +x scripts/apply.sh && ./scripts/apply.sh"
+  if [ -n "$MODULES" ]; then
+    apply_cmd="$apply_cmd --modules=$MODULES"
+  fi
+
   if [ "$DRY_RUN" = "1" ]; then
-    log "[dry-run] would execute: cd ~/$REMOTE_DEPLOY_DIR && ./scripts/apply.sh"
+    log "[dry-run] would execute: $apply_cmd"
     return 0
   fi
 
-  ssh_exec "$SSH_TARGET" "cd ~/$REMOTE_DEPLOY_DIR && chmod +x scripts/apply.sh && ./scripts/apply.sh" || {
+  ssh_exec "$SSH_TARGET" "$apply_cmd" || {
     warn "apply.sh failed on remote server"
-    warn "you may need to manually run: ssh $SSH_TARGET 'cd ~/$REMOTE_DEPLOY_DIR && ./scripts/apply.sh'"
+    warn "you may need to manually run: ssh $SSH_TARGET '$apply_cmd'"
     exit 1
   }
 
