@@ -27,7 +27,9 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # much, much faster.
 # DISABLE_UNTRACKED_FILES_DIRTY="true"
 
-# Homebrew completion paths (cross-platform)
+# ============================================================================
+# Homebrew Completion (cross-platform)
+# ============================================================================
 if command -v brew &> /dev/null; then
   # Dynamically detect Homebrew prefix
   BREW_PREFIX="$(brew --prefix)"
@@ -36,10 +38,9 @@ if command -v brew &> /dev/null; then
   fi
 fi
 
-# Which plugins would you like to load?
-# Standard plugins can be found in $ZSH/plugins/
-# Custom plugins may be added to $ZSH_CUSTOM/plugins/
-# Add wisely, as too many plugins slow down shell startup.
+# ============================================================================
+# Oh-My-Zsh Plugins
+# ============================================================================
 plugins=(
   git
   zsh-autosuggestions
@@ -51,7 +52,9 @@ plugins=(
 
 source $ZSH/oh-my-zsh.sh
 
-# User configuration
+# ============================================================================
+# User Configuration
+# ============================================================================
 
 # Preferred editor for local and remote sessions
 # if [[ -n $SSH_CONNECTION ]]; then
@@ -60,8 +63,99 @@ source $ZSH/oh-my-zsh.sh
 #   export EDITOR='nvim'
 # fi
 
+# ============================================================================
+# Conda Initialization (auto-detect)
+# ============================================================================
+# Try multiple common Conda installation locations
+for conda_base in "$HOME/miniconda3" "$HOME/anaconda3" "$HOME/miniforge3" "/opt/conda"; do
+  if [ -d "$conda_base" ]; then
+    __conda_setup="$('$conda_base/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+    if [ $? -eq 0 ]; then
+      eval "$__conda_setup"
+    else
+      if [ -f "$conda_base/etc/profile.d/conda.sh" ]; then
+        . "$conda_base/etc/profile.d/conda.sh"
+      else
+        export PATH="$conda_base/bin:$PATH"
+      fi
+    fi
+    unset __conda_setup
+    break
+  fi
+done
+
+# ============================================================================
+# Development Tools PATH (auto-detect)
+# ============================================================================
+
+# Docker Desktop (macOS only)
+if [[ "$OSTYPE" == "darwin"* ]] && [ -d "/Applications/Docker.app" ]; then
+  export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
+fi
+
+# Blender (macOS only)
+if [[ "$OSTYPE" == "darwin"* ]] && [ -d "/Applications/Blender.app" ]; then
+  export PATH="/Applications/Blender.app/Contents/MacOS:$PATH"
+fi
+
+# Windsurf (Codeium) - cross-platform
+if [ -d "$HOME/.codeium/windsurf/bin" ]; then
+  export PATH="$HOME/.codeium/windsurf/bin:$PATH"
+fi
+
+# FZF (Fuzzy Finder) - if using Homebrew
+if command -v brew &> /dev/null; then
+  export FZF_BASE="$(brew --prefix)/share/fzf"
+fi
+
+# Autojump - if using Homebrew
+if command -v brew &> /dev/null; then
+  AUTOJUMP_SCRIPT="$(brew --prefix)/etc/profile.d/autojump.sh"
+  [ -f "$AUTOJUMP_SCRIPT" ] && . "$AUTOJUMP_SCRIPT"
+fi
+
+# ============================================================================
+# Local Environment Variables (optional)
+# ============================================================================
+# Load additional local environment variables if they exist
+[ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"
+
+# ============================================================================
+# Powerlevel10k Configuration
+# ============================================================================
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# ============================================================================
+# iTerm2 Specific Functions (macOS only)
+# ============================================================================
+if [[ "$TERM_PROGRAM" == "iTerm.app" ]]; then
+  function cycle-color() {
+    local themes=(
+      "Hacker"
+      "Tron"
+      "Matrix"
+      "Cyberpunk"
+      "Vaughn"
+      "Solarized Dark"
+      "Nord"
+    )
+
+    local index_file="$HOME/.iterm2_color_index"
+    local index=-1
+
+    if [[ -f "$index_file" ]]; then
+      index=$(<"$index_file")
+    fi
+
+    index=$(( (index + 1) % ${#themes[@]} ))
+    local theme_name="${themes[index + 1]}"
+
+    printf "\033]1337;SetColors=preset=%s\a" "$theme_name"
+    echo "$index" > "$index_file"
+    echo "已切换到 $theme_name 主题。"
+  }
+fi
 
 # ============================================================================
 # Common Aliases
@@ -75,6 +169,21 @@ alias gm="gemini"
 # Utility aliases
 alias sc="source"
 
+# Proxy aliases (auto-detect if proxy is running)
+# Check if common proxy ports are open
+if command -v nc &> /dev/null && nc -z 127.0.0.1 7890 2>/dev/null; then
+  alias proxy="export https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 all_proxy=socks5://127.0.0.1:7890"
+  alias unproxy="unset https_proxy http_proxy all_proxy"
+elif command -v nc &> /dev/null && nc -z 127.0.0.1 1087 2>/dev/null; then
+  # Alternative proxy port (ClashX)
+  alias proxy="export https_proxy=http://127.0.0.1:1087 http_proxy=http://127.0.0.1:1087 all_proxy=socks5://127.0.0.1:1087"
+  alias unproxy="unset https_proxy http_proxy all_proxy"
+else
+  # Fallback: define aliases but they may not work
+  alias proxy="export https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 all_proxy=socks5://127.0.0.1:7890"
+  alias unproxy="unset https_proxy http_proxy all_proxy"
+fi
+
 # ============================================================================
 # Load Secret Environment Variables
 # ============================================================================
@@ -85,34 +194,3 @@ if [ -f "$HOME/.config/secret-env" ]; then
   source "$HOME/.config/secret-env"
   set +a
 fi
-
-# ============================================================================
-# Load Local Configuration
-# ============================================================================
-# Put device-specific configurations in ~/.zshrc.local
-# This file is not tracked by ai-dotfiles and should contain:
-#   - Local paths (Conda, Docker, etc.)
-#   - Device-specific aliases
-#   - Proxy settings
-#   - Any other machine-specific settings
-#
-# Example ~/.zshrc.local:
-#   # Conda
-#   [ -d "$HOME/miniconda3" ] && export PATH="$HOME/miniconda3/bin:$PATH"
-#
-#   # Docker (macOS)
-#   [ -d "/Applications/Docker.app" ] && \
-#     export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
-#
-#   # Proxy
-#   alias proxy="export https_proxy=http://127.0.0.1:7890 ..."
-#
-#   # FZF (if using Homebrew)
-#   command -v brew >/dev/null && export FZF_BASE=$(brew --prefix fzf)
-#
-#   # Autojump (if using Homebrew)
-#   command -v brew >/dev/null && \
-#     [ -f "$(brew --prefix)/etc/profile.d/autojump.sh" ] && \
-#     . "$(brew --prefix)/etc/profile.d/autojump.sh"
-
-[ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"
