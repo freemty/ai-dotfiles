@@ -1,0 +1,114 @@
+# ============================================================================
+# Device-Specific Configuration for ai-dotfiles
+# ============================================================================
+# This file contains machine-specific settings that should NOT be synced
+# across devices. It is automatically loaded by ~/.zshrc if it exists.
+#
+# Location: ~/.zshrc.local
+# This file is NOT tracked by ai-dotfiles (stays local to this machine)
+#
+# Generated from: /Users/sum_young (macOS)
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Conda Configuration
+# ----------------------------------------------------------------------------
+# Conda initialization - adjust path based on your installation
+if [ -d "$HOME/miniconda3" ]; then
+  __conda_setup="$('$HOME/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+  if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+  else
+    if [ -f "$HOME/miniconda3/etc/profile.d/conda.sh" ]; then
+      . "$HOME/miniconda3/etc/profile.d/conda.sh"
+    else
+      export PATH="$HOME/miniconda3/bin:$PATH"
+    fi
+  fi
+  unset __conda_setup
+fi
+
+# ----------------------------------------------------------------------------
+# macOS Specific Paths
+# ----------------------------------------------------------------------------
+# Docker Desktop (macOS)
+[ -d "/Applications/Docker.app" ] && \
+  export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
+
+# Blender (macOS)
+[ -d "/Applications/Blender.app" ] && \
+  export PATH="/Applications/Blender.app/Contents/MacOS:$PATH"
+
+# ----------------------------------------------------------------------------
+# Development Tools
+# ----------------------------------------------------------------------------
+# Windsurf (Codeium)
+[ -d "$HOME/.codeium/windsurf/bin" ] && \
+  export PATH="$HOME/.codeium/windsurf/bin:$PATH"
+
+# FZF (Fuzzy Finder)
+if command -v brew >/dev/null 2>&1; then
+  export FZF_BASE=$(brew --prefix fzf)
+fi
+
+# Autojump
+if command -v brew >/dev/null 2>&1; then
+  AUTOJUMP_SCRIPT="$(brew --prefix)/etc/profile.d/autojump.sh"
+  [ -f "$AUTOJUMP_SCRIPT" ] && . "$AUTOJUMP_SCRIPT"
+fi
+
+# ----------------------------------------------------------------------------
+# Local Environment Variables
+# ----------------------------------------------------------------------------
+# Load additional local environment variables if they exist
+[ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"
+
+# ----------------------------------------------------------------------------
+# Proxy Configuration
+# ----------------------------------------------------------------------------
+# Clash proxy (adjust port if needed)
+alias proxy="export https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 all_proxy=socks5://127.0.0.1:7890"
+alias unproxy="unset https_proxy http_proxy all_proxy"
+
+# ----------------------------------------------------------------------------
+# iTerm2 Specific Functions (macOS)
+# ----------------------------------------------------------------------------
+# iTerm2 Color Scheme Cycler
+if [[ "$TERM_PROGRAM" == "iTerm.app" ]]; then
+  function cycle-color() {
+    local themes=(
+      "Hacker"
+      "Tron"
+      "Matrix"
+      "Cyberpunk"
+      "Vaughn"
+      "Solarized Dark"
+      "Nord"
+    )
+
+    local index_file="$HOME/.iterm2_color_index"
+    local index=-1
+
+    if [[ -f "$index_file" ]]; then
+      index=$(<"$index_file")
+    fi
+
+    index=$(( (index + 1) % ${#themes[@]} ))
+    local theme_name="${themes[index + 1]}"
+
+    printf "\033]1337;SetColors=preset=%s\a" "$theme_name"
+    echo "$index" > "$index_file"
+    echo "已切换到 $theme_name 主题。"
+  }
+fi
+
+# ----------------------------------------------------------------------------
+# Custom Aliases and Functions
+# ----------------------------------------------------------------------------
+# Add your device-specific aliases and functions here
+
+# Example: Local project shortcuts
+# alias myproject="cd ~/Projects/myproject"
+
+# Example: Local development environment
+# export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home"
