@@ -16,6 +16,7 @@ MODULES=""
 MODULES_RAW=""
 MODULES_APPEND=0
 SSH_PORT="$DEFAULT_SSH_PORT"
+SSH_PORT_EXPLICIT=0
 SSH_IDENTITY=""
 SSH_TARGET=""
 
@@ -23,12 +24,12 @@ declare -a SSH_OPTS=()
 
 usage() {
   cat <<EOF
-Usage: $0 <user@host> [OPTIONS]
+Usage: $0 <user@host[:port]> [OPTIONS]
 
 Deploy ai-dotfiles configurations to a remote Linux server.
 
 Arguments:
-  user@host           SSH target (required)
+  user@host[:port]    SSH target (required). Port can be specified here or via --port
 
 Options:
   --with-secrets      Include secrets/ directory (sensitive data)
@@ -93,6 +94,7 @@ parse_args() {
         ;;
       --port=*)
         SSH_PORT="${1#*=}"
+        SSH_PORT_EXPLICIT=1
         shift
         ;;
       --identity=*)
@@ -125,6 +127,22 @@ parse_args() {
     warn "SSH target is required"
     usage
     exit 1
+  fi
+
+  # Parse user@host:port format
+  if [[ "$SSH_TARGET" == *:* ]]; then
+    local extracted_port="${SSH_TARGET##*:}"
+    local extracted_host="${SSH_TARGET%:*}"
+
+    # Only use extracted port if --port was not explicitly specified
+    if [ "$SSH_PORT_EXPLICIT" = "0" ]; then
+      SSH_PORT="$extracted_port"
+      log "detected port $SSH_PORT from SSH target"
+    else
+      log "using explicit --port=$SSH_PORT (ignoring :$extracted_port in target)"
+    fi
+
+    SSH_TARGET="$extracted_host"
   fi
 
   SSH_OPTS=(-p "$SSH_PORT")
