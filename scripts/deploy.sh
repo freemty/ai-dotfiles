@@ -293,33 +293,29 @@ collect_and_transfer_interactive_secrets() {
     return 0
   fi
 
-  declare -A secrets_map
+  # Prepare remote secret-env file
+  ssh_exec "$SSH_TARGET" "mkdir -p ~/.config && touch ~/.config/secret-env && chmod 600 ~/.config/secret-env"
+
+  log "transferring secrets to remote server..."
+  local collected_count=0
 
   for key in $required_keys; do
     read -r -s -p "Enter $key: " value
     printf "\n"
     if [ -n "$value" ]; then
-      secrets_map["$key"]="$value"
-      log "✓ collected $key"
+      # Directly transfer to remote server
+      ssh_exec "$SSH_TARGET" "grep -q '^${key}=' ~/.config/secret-env 2>/dev/null && sed -i.bak 's|^${key}=.*|${key}=${value}|' ~/.config/secret-env || echo '${key}=${value}' >> ~/.config/secret-env"
+      log "✓ collected and transferred $key"
+      collected_count=$((collected_count + 1))
     else
       warn "⚠️  skipped $key (empty value)"
     fi
   done
 
-  if [ ${#secrets_map[@]} -eq 0 ]; then
+  if [ "$collected_count" -eq 0 ]; then
     warn "no secrets collected"
     return 0
   fi
-
-  log "transferring secrets to remote server..."
-
-  ssh_exec "$SSH_TARGET" "mkdir -p ~/.config && touch ~/.config/secret-env && chmod 600 ~/.config/secret-env"
-
-  for key in "${!secrets_map[@]}"; do
-    local value="${secrets_map[$key]}"
-    ssh_exec "$SSH_TARGET" "grep -q '^${key}=' ~/.config/secret-env 2>/dev/null && sed -i.bak 's|^${key}=.*|${key}=${value}|' ~/.config/secret-env || echo '${key}=${value}' >> ~/.config/secret-env"
-    log "✓ transferred $key"
-  done
 
   log "secrets transferred securely"
 }
