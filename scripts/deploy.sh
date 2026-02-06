@@ -257,7 +257,7 @@ detect_required_keys() {
   fi
 
   if [ -f "$ROOT_DIR/configs/codex/config.toml" ] && grep -q "NOTION_API_KEY" "$ROOT_DIR/configs/codex/config.toml" 2>/dev/null; then
-    if [[ ! " ${required_keys[@]} " =~ " NOTION_API_KEY " ]]; then
+    if [[ ! " ${required_keys[@]+"${required_keys[@]}"} " =~ " NOTION_API_KEY " ]]; then
       required_keys+=("NOTION_API_KEY")
     fi
   fi
@@ -270,7 +270,7 @@ detect_required_keys() {
     required_keys+=("OPENAI_API_KEY")
   fi
 
-  echo "${required_keys[@]}"
+  echo "${required_keys[@]+"${required_keys[@]}"}"
 }
 
 collect_and_transfer_interactive_secrets() {
