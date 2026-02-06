@@ -204,10 +204,16 @@ transfer_repo() {
     exit 1
   fi
 
+  # Build SSH command for rsync
+  local ssh_cmd="ssh -p $SSH_PORT"
+  if [ -n "$SSH_IDENTITY" ]; then
+    ssh_cmd="$ssh_cmd -i $SSH_IDENTITY"
+  fi
+
   local -a rsync_opts=(
     -avz
     --delete
-    -e "ssh -p $SSH_PORT $([ -n "$SSH_IDENTITY" ] && echo "-i $SSH_IDENTITY")"
+    -e "$ssh_cmd"
   )
 
   local excludes
