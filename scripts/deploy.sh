@@ -7,11 +7,14 @@ source "$SCRIPT_DIR/lib.sh"
 
 REMOTE_DEPLOY_DIR="ai-dotfiles"
 DEFAULT_SSH_PORT=22
+DEFAULT_MODULES="claude,codex,gemini"
 WITH_SECRETS=0
 INTERACTIVE_SECRETS=0
 UPDATE_MODE=0
 DRY_RUN=0
 MODULES=""
+MODULES_RAW=""
+MODULES_APPEND=0
 SSH_PORT="$DEFAULT_SSH_PORT"
 SSH_IDENTITY=""
 SSH_TARGET=""
@@ -31,27 +34,29 @@ Options:
   --with-secrets      Include secrets/ directory (sensitive data)
   --interactive-secrets  Prompt for API keys locally and transfer securely
   --update            Incremental update (skip dependency installation)
-  --modules=<list>    Comma-separated modules (shell,git,tmux,ssh,tools,claude,codex,gemini)
+  --modules=<list>    Deploy specific modules. Default: claude,codex,gemini
+                      Prefix with + to append to defaults (e.g., +shell,git)
+                      Available: shell,git,tmux,ssh,tools,claude,codex,gemini
   --dry-run           Preview actions without executing
   --port=<port>       SSH port (default: 22)
   --identity=<file>   SSH identity file
   --help              Show this help message
 
 Examples:
-  # Basic deployment
+  # Basic deployment (AI CLI only)
   $0 user@192.168.1.100
 
-  # Deploy with secrets
-  $0 user@server1 --with-secrets
+  # Deploy AI CLI + shell configs
+  $0 user@server1 --modules=+shell,git
+
+  # Deploy only shell configs (override default)
+  $0 user@server1 --modules=shell,git
 
   # Interactive secrets input (recommended)
   $0 user@server1 --interactive-secrets
 
   # Incremental update
   $0 user@server1 --update
-
-  # Deploy specific modules
-  $0 user@server1 --modules=shell,git,tmux
 
   # Preview without executing
   $0 user@server1 --dry-run
@@ -78,7 +83,12 @@ parse_args() {
         shift
         ;;
       --modules=*)
-        MODULES="${1#*=}"
+        MODULES_RAW="${1#*=}"
+        # Check if starts with +
+        if [[ "$MODULES_RAW" == +* ]]; then
+          MODULES_APPEND=1
+          MODULES_RAW="${MODULES_RAW#+}"  # Strip leading +
+        fi
         shift
         ;;
       --port=*)
@@ -120,6 +130,18 @@ parse_args() {
   SSH_OPTS=(-p "$SSH_PORT")
   if [ -n "$SSH_IDENTITY" ]; then
     SSH_OPTS+=(-i "$SSH_IDENTITY")
+  fi
+
+  # Resolve final module list
+  if [ -z "$MODULES_RAW" ]; then
+    # No --modules specified: use defaults (AI CLI only)
+    MODULES="$DEFAULT_MODULES"
+  elif [ "$MODULES_APPEND" = "1" ]; then
+    # + prefix: append to defaults
+    MODULES="$DEFAULT_MODULES,$MODULES_RAW"
+  else
+    # No + prefix: override defaults
+    MODULES="$MODULES_RAW"
   fi
 }
 
@@ -179,14 +201,20 @@ build_rsync_excludes() {
     excludes+=(--exclude='secrets/')
   fi
 
-  if [ -n "$MODULES" ]; then
-    IFS=',' read -ra module_list <<< "$MODULES"
-    excludes+=(--exclude='configs/*')
-    for module in "${module_list[@]}"; do
-      excludes+=(--include="configs/$module/")
-      excludes+=(--include="configs/$module/**")
-    done
-  fi
+  # Module filtering (always applied since MODULES is always set)
+  IFS=',' read -ra module_list <<< "$MODULES"
+
+  # Include parent directory first
+  excludes+=(--include='configs/')
+
+  # Include specific modules (must come before exclude)
+  for module in "${module_list[@]}"; do
+    excludes+=(--include="configs/$module/")
+    excludes+=(--include="configs/$module/**")
+  done
+
+  # Exclude everything else in configs/
+  excludes+=(--exclude='configs/*')
 
   echo "${excludes[@]}"
 }
@@ -347,12 +375,25 @@ verify_deployment() {
 
   local -a check_files=()
 
-  if [ -z "$MODULES" ] || [[ "$MODULES" == *"shell"* ]]; then
+  # Use comma-wrapping to avoid partial matches
+  if [[ ",$MODULES," == *",shell,"* ]]; then
     check_files+=("~/.zshrc")
   fi
 
-  if [ -z "$MODULES" ] || [[ "$MODULES" == *"git"* ]]; then
+  if [[ ",$MODULES," == *",git,"* ]]; then
     check_files+=("~/.gitconfig")
+  fi
+
+  if [[ ",$MODULES," == *",claude,"* ]]; then
+    check_files+=("~/.claude/settings.json")
+  fi
+
+  if [[ ",$MODULES," == *",codex,"* ]]; then
+    check_files+=("~/.codex/config.toml")
+  fi
+
+  if [[ ",$MODULES," == *",gemini,"* ]]; then
+    check_files+=("~/.gemini/settings.json")
   fi
 
   for file in "${check_files[@]}"; do
@@ -370,6 +411,7 @@ main() {
   parse_args "$@"
 
   log "=== ai-dotfiles deployment to $SSH_TARGET ==="
+  log "modules to deploy: $MODULES"
 
   check_ssh_connection
 
