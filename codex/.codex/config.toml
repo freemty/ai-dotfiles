@@ -1,0 +1,52 @@
+model_provider = "azure"
+model = "gpt-5.4"
+model_reasoning_effort = "high"
+disable_response_storage = true
+personality = "pragmatic"
+
+[model_providers.azure]
+name = "Yunstorm Azure OpenAI"
+base_url = "https://gpt.yunstorm.com/openai/v1"
+wire_api = "responses"
+env_http_headers = { "api-key" = "AZURE_OPENAI_API_KEY" }
+
+[projects."/Users/sum_young"]
+trust_level = "trusted"
+
+[projects."/Users/sum_young/code/projects/rope2sink"]
+trust_level = "trusted"
+
+[projects."/Users/sum_young/code/projects/ybcfg"]
+trust_level = "trusted"
+
+[projects."/Users/sum_young/code/projects/yuanbo-skills"]
+trust_level = "trusted"
+
+[notice.model_migrations]
+"gpt-5.2" = "gpt-5.2-codex"
+"gpt-5.2-codex" = "gpt-5.3-codex"
+"gpt-5.3-codex" = "gpt-5.4"
+
+[notice]
+fast_default_opt_out = true
+
+[mcp_servers]
+
+[mcp_servers.notion]
+type = "stdio"
+command = "npx"
+args = ["-y", "@ramidecodes/mcp-server-notion"]
+
+[mcp_servers.notion.env]
+NOTION_API_KEY = ""
+
+[marketplaces.openai-bundled]
+last_updated = "2026-04-25T03:03:26Z"
+source_type = "local"
+source = "/Users/sum_young/.codex/.tmp/bundled-marketplaces/openai-bundled"
+
+[tui]
+theme = "gruvbox-dark"
+
+[tui.model_availability_nux]
+"gpt-5.5" = 4

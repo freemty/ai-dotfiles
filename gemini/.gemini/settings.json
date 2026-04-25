@@ -1,0 +1,80 @@
+{
+  "general": {
+    "previewFeatures": false,
+    "vimMode": true
+  },
+  "hooks": {
+    "AfterAgent": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/sum_young/.claude/hooks/codeisland-bridge --source gemini",
+            "timeout": 5000,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "AfterTool": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/sum_young/.claude/hooks/codeisland-bridge --source gemini",
+            "timeout": 5000,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "BeforeAgent": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/sum_young/.claude/hooks/codeisland-bridge --source gemini",
+            "timeout": 5000,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "BeforeTool": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/sum_young/.claude/hooks/codeisland-bridge --source gemini",
+            "timeout": 5000,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/sum_young/.claude/hooks/codeisland-bridge --source gemini",
+            "timeout": 5000,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/sum_young/.claude/hooks/codeisland-bridge --source gemini",
+            "timeout": 5000,
+            "type": "command"
+          }
+        ]
+      }
+    ]
+  },
+  "mcpServers": {},
+  "security": {
+    "auth": {
+      "selectedType": "gemini-api-key"
+    }
+  }
+}

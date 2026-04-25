@@ -1,0 +1,8 @@
+prefix_rule(pattern=["git", "push"], decision="allow")
+prefix_rule(pattern=["python"], decision="allow")
+prefix_rule(pattern=["git", "clone"], decision="allow")
+prefix_rule(pattern=["python3", "~/.claude/skills/web-fetcher/scripts/fetch.py", "https://github.com/jiahao-shao1/sjh-skills"], decision="allow")
+prefix_rule(pattern=["python3", "~/.claude/skills/web-fetcher/scripts/fetch.py", "https://raw.githubusercontent.com/jiahao-shao1/sjh-skills/refs/heads/main/.codex/INSTALL.md"], decision="allow")
+prefix_rule(pattern=["python3", "~/.claude/skills/web-fetcher/scripts/fetch.py", "https://raw.githubusercontent.com/jiahao-shao1/sjh-skills/refs/heads/main/.claude-plugin/plugin.json"], decision="allow")
+prefix_rule(pattern=["python3", "~/.claude/skills/web-fetcher/scripts/fetch.py", "https://raw.githubusercontent.com/jiahao-shao1/sjh-skills/refs/heads/main/AGENTS.md"], decision="allow")
+prefix_rule(pattern=["mkdir", "-p", ".codex", ".agents/plugins", "plugins/labmate/.codex-plugin", "plugins/meta-audit/.codex-plugin", "plugins/unbox-skills/.codex-plugin", "plugins/paper-review/.codex-plugin"], decision="allow")

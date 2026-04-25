@@ -1,0 +1,101 @@
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://bedrock-runtime.us-east-2.amazonaws.com",
+    "ANTHROPIC_BEDROCK_BETA": "context-1m-2025-08-07",
+    "AWS_ACCESS_KEY_ID": "",
+    "AWS_REGION": "us-east-2",
+    "AWS_SECRET_ACCESS_KEY": "",
+    "CLAUDE_CODE_USE_BEDROCK": "1",
+    "ANTHROPIC_MODEL": "arn:aws:bedrock:us-east-2:533595510084:inference-profile/us.anthropic.claude-opus-4-7",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "arn:aws:bedrock:us-east-2:533595510084:inference-profile/us.anthropic.claude-sonnet-4-6",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "arn:aws:bedrock:us-east-2:533595510084:inference-profile/us.anthropic.claude-sonnet-4-6",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "arn:aws:bedrock:us-east-2:533595510084:inference-profile/us.anthropic.claude-opus-4-6-v1"
+  },
+  "model": "arn:aws:bedrock:us-east-2:533595510084:inference-profile/us.anthropic.claude-opus-4-7",
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/sum_young/.claude/hooks/notify.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "WebFetch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/sum_young/.claude/hooks/webfetch-block.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/sum_young/.claude/hooks/secrets-guard.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/sum_young/.claude/hooks/destructive-git.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/sum_young/.claude/hooks/codeisland-hook.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/sum_young/.claude/hooks/wiki-auto-ingest.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "claude-api@anthropic-agent-skills": true,
+    "codex@openai-codex": true,
+    "document-skills@anthropic-agent-skills": true,
+    "labmate@labmate-marketplace": true,
+    "unbox-skills@labmate-marketplace": true,
+    "meta-audit@labmate-marketplace": true,
+    "superpowers@claude-plugins-official": true,
+    "ralph-loop@claude-plugins-official": true,
+    "plugin-dev@claude-plugins-official": true,
+    "chrome-devtools-mcp@claude-plugins-official": true,
+    "huggingface-skills@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "openai-codex": {
+      "source": {
+        "source": "github",
+        "repo": "openai/codex-plugin-cc"
+      }
+    }
+  },
+  "language": "中文",
+  "effortLevel": "medium",
+  "skipDangerousModePermissionPrompt": true
+}

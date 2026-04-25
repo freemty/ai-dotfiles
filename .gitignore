@@ -1,69 +1,35 @@
-# 备份文件
-backups/
-*.backup
-*.bak
-
-# 敏感信息
-secrets/
-*.key
-*.pem
-*.p12
+# --- Secrets & machine-local (never sync, managed by CC-Switch / secret-env) ---
+*.local.json
+settings.local.json
 .env
-api_keys.json
+.env.*
+auth.json
+oauth_creds.json
+google_accounts.json
+.codex-global-state.json
+installation_id
+secret-env
 
-# 系统文件
+# --- Runtime / caches / session data ---
+*.log
+logs/
+*.sqlite
+*.sqlite-*
+cache/
+.cache/
+tmp/
+temp/
+*.tmp
+*.bak
+*.backup
+backups/
+
+# --- System ---
 .DS_Store
 Thumbs.db
 *.swp
 *.swo
 *~
 
-# 日志文件
-*.log
-logs/
-
-# 临时文件
-tmp/
-temp/
-*.tmp
-
-# IDE 文件
-.vscode/
-.idea/
-*.sublime-*
-
-# 缓存文件
-cache/
-.cache/
-
-# Clash 缓存
-configs/clash/cache.db
-configs/clash/Clash_*.yaml
-
-# Node.js
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# 编译文件
-*.o
-*.so
-*.dylib
-*.dll
-*.exe
-
-# Git 子模块（保留 .gitmodules）
-# .gitmodules 应该被提交
+# --- Stow backup dirs ---
+.dotfiles-backup-*

@@ -1,0 +1,59 @@
+{
+  "hooks" : {
+    "PostToolUse" : [
+      {
+        "hooks" : [
+          {
+            "command" : "\/Users\/sum_young\/.claude\/hooks\/codeisland-bridge --source codex",
+            "timeout" : 5,
+            "type" : "command"
+          }
+        ]
+      }
+    ],
+    "PreToolUse" : [
+      {
+        "hooks" : [
+          {
+            "command" : "\/Users\/sum_young\/.claude\/hooks\/codeisland-bridge --source codex",
+            "timeout" : 5,
+            "type" : "command"
+          }
+        ]
+      }
+    ],
+    "SessionStart" : [
+      {
+        "hooks" : [
+          {
+            "command" : "\/Users\/sum_young\/.claude\/hooks\/codeisland-bridge --source codex",
+            "timeout" : 5,
+            "type" : "command"
+          }
+        ]
+      }
+    ],
+    "Stop" : [
+      {
+        "hooks" : [
+          {
+            "command" : "\/Users\/sum_young\/.claude\/hooks\/codeisland-bridge --source codex",
+            "timeout" : 5,
+            "type" : "command"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit" : [
+      {
+        "hooks" : [
+          {
+            "command" : "\/Users\/sum_young\/.claude\/hooks\/codeisland-bridge --source codex",
+            "timeout" : 5,
+            "type" : "command"
+          }
+        ]
+      }
+    ]
+  }
+}
