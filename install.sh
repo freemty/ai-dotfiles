@@ -10,7 +10,7 @@ set -euo pipefail
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_DIR="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
 
-PACKAGES_ALL=(claude codex gemini zsh git tmux)
+PACKAGES_ALL=(claude codex gemini zsh git tmux yazi)
 if [[ $# -gt 0 ]]; then
   PACKAGES=("$@")
 else
@@ -74,6 +74,10 @@ for pkg in "${PACKAGES[@]}"; do
       ;;
     git) backup_if_exists "$HOME/.gitconfig" ;;
     tmux) backup_if_exists "$HOME/.tmux.conf" ;;
+    yazi)
+      backup_if_exists "$HOME/.config/yazi/keymap.toml"
+      backup_if_exists "$HOME/.config/yazi/package.toml"
+      ;;
   esac
 done
 

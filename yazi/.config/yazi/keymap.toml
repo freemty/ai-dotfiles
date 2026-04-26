@@ -1,0 +1,19 @@
+# Yazi keymap — 自定义快捷键
+# 详见 https://yazi-rs.github.io/docs/configuration/keymap
+
+[manager]
+
+# G 键启动 lazygit（在当前目录）
+prepend_keymap = [
+  { on = "G", run = "plugin lazygit", desc = "Run lazygit" },
+]
+
+[[manager.prepend_fetchers]]
+id   = "git"
+name = "*"
+run  = "git"
+
+[[manager.prepend_fetchers]]
+id   = "git"
+name = "*/"
+run  = "git"

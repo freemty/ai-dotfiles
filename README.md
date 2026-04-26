@@ -32,6 +32,7 @@ ai-dotfiles/
 ├── zsh/                        # .zshrc, .zprofile, .p10k.zsh
 ├── git/.gitconfig
 ├── tmux/.tmux.conf
+├── yazi/.config/yazi/          # keymap.toml, package.toml（G 键启动 lazygit）
 ├── install.sh                  # stow 编排 + 自动备份
 └── scripts/
     ├── bootstrap.sh            # skills 安装（personal + 第三方）
