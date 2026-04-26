@@ -23,7 +23,7 @@ else
 fi
 
 log "running yuanbo-skills installer (symlinks skills -> ~/.claude/skills/)"
-"$SKILLS_DIR/install.sh" --target all
+"$SKILLS_DIR/install.sh" --target claude
 
 # --- 2. Third-party skills via npx skills ---
 if [[ ! -f "$THIRD_PARTY_LIST" ]]; then

@@ -1,3 +1,6 @@
+# Third-party skills installed via: npx skills add <name>
+# Lines starting with # are ignored by bootstrap.sh
+
 agent-exp-orchestration
 agent-reach
 autoplan
@@ -18,18 +21,11 @@ design-review
 design-shotgun
 devex-review
 document-release
-english-coaching
-fars-autotrain
-fars-ideagen
-fars-plan
-fars-reviewer
-fars-system
 freeze
 gstack
 gstack-upgrade
 guard
 health
-hle-solver
 investigate
 land-and-deploy
 latex-document

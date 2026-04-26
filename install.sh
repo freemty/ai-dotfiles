@@ -11,7 +11,11 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_DIR="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
 
 PACKAGES_ALL=(claude codex gemini zsh git tmux)
-PACKAGES=("${@:-${PACKAGES_ALL[@]}}")
+if [[ $# -gt 0 ]]; then
+  PACKAGES=("$@")
+else
+  PACKAGES=("${PACKAGES_ALL[@]}")
+fi
 
 log() { printf "\033[1;34m==>\033[0m %s\n" "$*"; }
 warn() { printf "\033[1;33m[warn]\033[0m %s\n" "$*"; }
@@ -81,7 +85,7 @@ for pkg in "${PACKAGES[@]}"; do
     continue
   fi
   log "stow: $pkg -> \$HOME"
-  stow -t "$HOME" --restow "$pkg"
+  stow -t "$HOME" --no-folding --restow "$pkg"
 done
 
 log "Done. Backups (if any): $BACKUP_DIR"
