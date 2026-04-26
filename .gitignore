@@ -33,3 +33,4 @@ Thumbs.db
 
 # --- Stow backup dirs ---
 .dotfiles-backup-*
+.labmate-hook-state.json
